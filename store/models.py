@@ -19,6 +19,17 @@ class Product(models.Model):
         return self.name
     
     @property
+    def shipping(self):
+        shipping=False
+        orderItems=self.orderitem_all()
+        for i in orderItems:
+            if i.product.digital==False:
+                shipping=True
+        return shipping
+
+
+    
+    @property
     def imageURL(self):
         try:
             url=self.image.url
