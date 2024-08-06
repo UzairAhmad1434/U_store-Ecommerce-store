@@ -113,15 +113,13 @@
 <script>
   let shipping = "{{order.shipping}}";
 
-  if (shipping == "False") {
+  let total = "{{order.get_cart_total}}";
+
+  if (shipping == true) {
     document.getElementById("shipping-info").innerHTML = "";
   }
   if (user != "AnonymousUser") {
     document.getElementById("user-info").innerHTML = "";
-  }
-  if (shipping == "False" && user != "AnonymousUser") {
-    document.getElementById("form-wrapper").classList.add("hidden");
-    document.getElementById("payment-info").classList.remove("hidden");
   }
 
   let form = document.getElementById("form");
@@ -130,14 +128,51 @@
     e.preventDefault();
     document.getElementById("form-button").classList.add("hidden");
     document.getElementById("payment-info").classList.remove("hidden");
-    document
-      .getElementById("make-payment")
-      .addEventListener("click", function (e) {
-        sumbitFormData();
-      });
+    let btn = document.getElementById("make-payment");
+    btn.addEventListener("click", submitFormData);
 
-    function sumbitFormData() {
+    function submitFormData() {
       console.log("clicking on payment button");
+      let userInfo = {
+        name: null,
+        email: null,
+        total: total,
+      };
+      let shippingInfo = {
+        address: null,
+        city: null,
+        state: null,
+        zipcode: null,
+      };
+      if (shipping != "False") {
+        shippingInfo.address = form.address.value;
+        shippingInfo.city = form.city.value;
+        shippingInfo.state = form.state.value;
+        shippingInfo.zipcode = form.zipcode.value;
+      }
+      if (user == "AnonymousUser") {
+        userInfo.name = form.name.value;
+        userInfo.email = form.email.value;
+      }
+
+      let url = "/processOrder/";
+
+      fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrftoken,
+        },
+        body: JSON.stringify({ form: userInfo, shipping: shippingInfo }),
+      })
+        .then((response) => {
+          return response.json();
+        })
+        .then((data) => {
+          console.log("Data:", data);
+          alert("Payment submitted");
+          window.location.href = "{% url 'store' %}";
+        });
     }
   });
 </script>
