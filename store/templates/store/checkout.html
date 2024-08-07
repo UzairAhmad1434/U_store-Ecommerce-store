@@ -3,6 +3,7 @@
   <div class="col-lg-6">
     <div class="box-element" id="form-wrapper">
       <form id="form">
+        {% csrf_token %}
         <div id="user-info">
           <div class="form-field">
             <input
@@ -115,12 +116,15 @@
 
   let total = "{{order.get_cart_total}}";
 
-  if (shipping == true) {
-    document.getElementById("shipping-info").innerHTML = "";
-  }
+  // if (shipping != "True") {
+  //   document.getElementById("shipping-info").innerHTML = "";
+  // }
   if (user != "AnonymousUser") {
     document.getElementById("user-info").innerHTML = "";
   }
+  // else {
+  //   document.getElementById("shipping-info").innerHTML = "";
+  // }
 
   let form = document.getElementById("form");
   form.addEventListener("submit", function (e) {
