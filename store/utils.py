@@ -27,13 +27,14 @@ def cookieCart(request):
                     'get_total':total, 
                 }
              items.append(item)
-             if product.digital!=True:
+             if product.digital==False:
                 order['shipping']=True
         except:
             pass
     return{'cartItems':cartItems,'order':order,'items':items}
 
 def cartData(request):
+
     if request.user.is_authenticated:
         customer = request.user.customer
         order, created = Order.objects.get_or_create(customer=customer, complete=False)
@@ -45,3 +46,30 @@ def cartData(request):
         order=cookieData['order']
         items=cookieData['items']
     return{'order':order,'cartItems':cartItems,'items':items}
+
+def guestUser(request):
+    print('user not logged in')
+    print('Cookies:',request.COOKIES)
+    name=cartData['form']['email']
+    email=cartData['form']['email']
+    cookieData=cookieCart(request)
+    items=cookieData['items']
+
+    customer,created=Customer.objects.get_or_create(email=email)
+    customer.name=name
+    customer.save()
+
+    order=Order.objects.create(
+    customer=customer,
+    complete=False
+    )
+
+    for item in items:
+     product = Product.objects.get(id=item['product']['id'])
+     orderItem = OrderItem.objects.create(
+     product=product,
+     order=order,
+     quantity=item['quantity']
+     )
+
+    return customer,order

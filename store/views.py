@@ -2,7 +2,7 @@ from django.shortcuts import render
 from .models import *
 import json
 import datetime
-from .utils import cookieCart,cartData
+from .utils import cookieCart,cartData,guestUser
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
@@ -65,19 +65,23 @@ def processOrder(request):
 
             if request.user.is_authenticated:
                 customer = request.user.customer
-                total = float(data['form']['total'])
                 order, created = Order.objects.get_or_create(customer=customer, complete=False)
-                order.transaction_id = transaction_id
+               
+            else:
+                customer,order=guestUser(request,data)
 
-                if total == order.get_cart_total:
-                    order.complete = True
-                    order.save()
+            total = float(data['form']['total'])
+            order.transaction_id = transaction_id
 
-                if order.shipping:
+            if total == float(order.get_cart_total):
+                order.complete = True
+            order.save()
+
+            if order.shipping==True:
                     ShippingAddress.objects.create(
                         customer=customer,
                         order=order,
-                        address=data['shipping']['address'],  # Ensure correct spelling
+                        address=data['shipping']['address'], 
                         state=data['shipping']['state'],
                         city=data['shipping']['city'],
                         zipcode=data['shipping']['zipcode']
