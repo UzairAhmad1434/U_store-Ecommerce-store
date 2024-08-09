@@ -47,29 +47,32 @@ def cartData(request):
         items=cookieData['items']
     return{'order':order,'cartItems':cartItems,'items':items}
 
-def guestUser(request):
-    print('user not logged in')
-    print('Cookies:',request.COOKIES)
-    name=cartData['form']['email']
-    email=cartData['form']['email']
-    cookieData=cookieCart(request)
-    items=cookieData['items']
+# def guestUser(request):
+#         print('user not logged in')
 
-    customer,created=Customer.objects.get_or_create(email=email)
-    customer.name=name
-    customer.save()
+#         print('Cookies:',request.COOKIES)
+#         name=cartData['form']['email']
+#         email=cartData['form']['email'] 
+#         cookieData=cookieCart(request)
+#         items=cookieData['items']
 
-    order=Order.objects.create(
-    customer=customer,
-    complete=False
-    )
+#         customer,created=Customer.objects.get_or_create(
+#          email=email
+#          )
+#         customer.name=name
+#         customer.save()
 
-    for item in items:
-     product = Product.objects.get(id=item['product']['id'])
-     orderItem = OrderItem.objects.create(
-     product=product,
-     order=order,
-     quantity=item['quantity']
-     )
+#         order=Order.objects.create(
+#             customer=customer,
+#             complete=False,
+#             )
 
-    return customer,order
+#         for item in items:
+#             product = Product.objects.get(id=item['product']['id'])
+#             orderItem = OrderItem.objects.create(
+#                 product=product,
+#                 order=order,
+#                 quantity=item['quantity']
+#                 )
+
+#         return customer,order

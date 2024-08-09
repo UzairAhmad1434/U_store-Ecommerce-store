@@ -2,7 +2,7 @@ from django.shortcuts import render
 from .models import *
 import json
 import datetime
-from .utils import cookieCart,cartData,guestUser
+from .utils import cookieCart,cartData
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
@@ -52,13 +52,15 @@ def updateItem(request):
         if orderItem.quantity <= 0:
             orderItem.delete()
 
-        cartItems = order.get_cart_items
+        cartItems = order.get_cart_items()
 
         return JsonResponse({'cartItems': cartItems}, safe=False)
     
+
+
 @csrf_exempt
 def processOrder(request):
-    if request.method == 'POST':
+    if request.method == 'POST': 
         try:
             data = json.loads(request.body)
             transaction_id = datetime.datetime.now().timestamp()
@@ -66,26 +68,45 @@ def processOrder(request):
             if request.user.is_authenticated:
                 customer = request.user.customer
                 order, created = Order.objects.get_or_create(customer=customer, complete=False)
-               
-            else:
-                customer,order=guestUser(request,data)
-
             total = float(data['form']['total'])
             order.transaction_id = transaction_id
+            order.save()
 
             if total == float(order.get_cart_total):
                 order.complete = True
             order.save()
+            order.shipping==True
+            if order.shipping:
+                ShippingAddress+=ShippingAddress.objects.create(
+                    customer=customer,
+                    order=order,
+                    address=data['shipping']['address'], 
+                    state=data['shipping']['state'],
+                    city=data['shipping']['city'],
+                    zipcode=data['shipping']['zipcode']
+                )
+            else:
+                print('User not logged in')
+                print('Cookies:', request.COOKIES)
+                name = data['form']['email']
+                email = data['form']['email']
 
-            if order.shipping==True:
-                    ShippingAddress.objects.create(
-                        customer=customer,
-                        order=order,
-                        address=data['shipping']['address'], 
-                        state=data['shipping']['state'],
-                        city=data['shipping']['city'],
-                        zipcode=data['shipping']['zipcode']
-                    )
+                cookieData = cookieCart(request)
+                items = cookieData['items']
+
+                customer, created = Customer.objects.get_or_create(email=email)
+
+                if not customer:
+                    print('No customer created')
+                customer.save()
+
+                order = Order.objects.create(customer=customer, complete=False)
+
+                for item in items:
+                    product = Product.objects.get(id=item['product']['id'])
+                    OrderItem.objects.create(product=product, order=order, quantity=item['quantity'])
+
+            
 
             return JsonResponse({"message": "Order processed"}, status=200)
 
