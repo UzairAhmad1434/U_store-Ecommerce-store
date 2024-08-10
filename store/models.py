@@ -12,7 +12,6 @@ class Customer(models.Model):
 class Product(models.Model):
     name = models.CharField(max_length=200, null=True)
     price = models.DecimalField(max_digits=7,decimal_places=2)
-    digital = models.BooleanField(default=False, null=True, blank=False)
     image=models.ImageField(null=True, blank=False)
 
     def __str__(self):
@@ -20,13 +19,9 @@ class Product(models.Model):
     
     @property
     def shipping(self):
-        shipping=False
-        orderItems=self.orderitem_set.all()
-        for i in orderItems:
-            if i.product.digital==False:
-                shipping=True
+        shipping=True
         return shipping
-
+        
 
     
     @property

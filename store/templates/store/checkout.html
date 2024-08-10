@@ -116,15 +116,9 @@
 
   let total = "{{order.get_cart_total}}";
 
-  // if (shipping != "True") {
-  //   document.getElementById("shipping-info").innerHTML = "";
-  // }
   if (user != "AnonymousUser") {
     document.getElementById("user-info").innerHTML = "";
   }
-  // else {
-  //   document.getElementById("shipping-info").innerHTML = "";
-  // }
 
   let form = document.getElementById("form");
   form.addEventListener("submit", function (e) {
