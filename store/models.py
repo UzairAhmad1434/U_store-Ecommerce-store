@@ -7,32 +7,28 @@ class Customer(models.Model):
     email = models.CharField(max_length=200, null=True)
 
     def __str__(self):
-        return self.name
+        return self.name or "Unnamed Customer"  # Ensure a string is returned
 
 class Product(models.Model):
     name = models.CharField(max_length=200, null=True)
-    price = models.DecimalField(max_digits=7,decimal_places=2)
-    image=models.ImageField(null=True, blank=False)
+    price = models.DecimalField(max_digits=7, decimal_places=2)
+    image = models.ImageField(null=True, blank=False)
 
     def __str__(self):
-        return self.name
-    
+        return self.name or "Unnamed Product"  # Ensure a string is returned
+
     @property
     def shipping(self):
-        shipping=True
-        return shipping
-        
+        return True  # Default value as True
 
-    
     @property
     def imageURL(self):
         try:
-            url=self.image.url
+            url = self.image.url
         except:
-            url=''
+            url = ''
         return url
 
-    
 class Order(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True)
     ordered_date = models.DateTimeField(auto_now_add=True)
@@ -40,20 +36,19 @@ class Order(models.Model):
     transaction_id = models.CharField(max_length=50, null=True)
 
     def __str__(self):
-        return str(self.id)
-    
+        return str(self.id)  # Convert to string to avoid TypeError
+
     @property
     def get_cart_total(self):
-        orderitems=self.orderitem_set.all()
-        Total=sum([item.get_total for item in orderitems])
-        return Total
-    
+        orderitems = self.orderitem_set.all()
+        total = sum([item.get_total for item in orderitems])
+        return total
+
     @property
     def get_cart_items(self):
-        orderitems=self.orderitem_set.all()
-        Total=sum([item.quantity for item in orderitems])
-        return Total
-
+        orderitems = self.orderitem_set.all()
+        total = sum([item.quantity for item in orderitems])
+        return total
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True)
@@ -63,8 +58,8 @@ class OrderItem(models.Model):
 
     @property
     def get_total(self):
-        Total=self.quantity*self.product.price
-        return Total
+        total = self.quantity * self.product.price
+        return total
 
 class ShippingAddress(models.Model):
     order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True)
@@ -76,4 +71,4 @@ class ShippingAddress(models.Model):
     date_added = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.address
+        return self.address or "No Address Provided"  # Ensure a string is returned
