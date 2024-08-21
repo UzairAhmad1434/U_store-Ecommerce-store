@@ -1,0 +1,1 @@
+This is my first ecommerce website name 'U_store' made in Django which contains home page ,cart page and checkout page.Its functionality includes add to cart...increase or decrease cart items and also have paypal payment methods with shipping information
